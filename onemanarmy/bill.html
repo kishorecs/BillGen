@@ -96,6 +96,18 @@
             transition: all 0.3s ease;
         }
 
+        .custom {
+            width: 100%;
+            padding: 2px 2px;
+            border: 1px solid #e1e5e9;
+            border-radius: 20px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin-right: 0px;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
         input:focus, select:focus {
             outline: none;
             border-color: #667eea;
@@ -154,6 +166,18 @@
         .btn-success {
             background: linear-gradient(45deg, #4facfe, #00f2fe);
             color: white;
+        }
+
+        .dark-theme .btn-primary {
+            background: linear-gradient(45deg, #4a4b4f, #0d0811);
+            color: white;
+            border: 2px solid #444;
+        }
+
+        .dark-theme .btn-secondary, .dark-theme .btn-success {
+            background: linear-gradient(45deg, #9e7da2, #340108);
+            color: white;
+            border: 2px solid #444;
         }
 
         button:hover {
@@ -485,6 +509,9 @@
             filter: invert(1);
             cursor: pointer;
         }
+        .dark-theme .texture-group {
+            border: 3px solid #444;
+        }
     </style>
 </head>
 <body>
@@ -516,10 +543,10 @@
 
                     <div class="form-row">
                         <label for="paperTextureFieldset">Paper Texture</label>
-                        <!-- <input class="custom" type="button" value="⇪ Custom" onclick="document.getElementById('fileInput').click();"/> -->
+                        <input class="custom" type="button" value="⇪ Custom" onclick="document.getElementById('fileInput').click();"/>
                     </div>
                     <fieldset id="paperTextureFieldset">
-                    <!-- <legend>Select Paper Texture</legend> -->
+                        <!-- <legend>Select Paper Texture</legend> -->
                     <div class="texture-group">
                         <input type="radio" id="texture-none" name="paperTexture" value="none" checked onchange="changePaperTexture(this.value)">
                         <label for="texture-none">0</label>
@@ -558,6 +585,7 @@
                         <label for="texture-vintage">11</label>
                     </div>
                     </fieldset>
+                    <input type="file" id="fileInput" hidden/>
                 </div>
 
                 <div class="form-row">
@@ -730,6 +758,7 @@
     <script>
         // -- THEME START --
         const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const customTexture = document.getElementById('fileInput');
         const body = document.body;
         let darkMode = false;
 
@@ -749,6 +778,24 @@
         themeToggleBtn.addEventListener('click', function() {
             setTheme(!darkMode);
             localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+        });
+
+        customTexture.addEventListener('change', function() {
+
+            const file = this.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64String = e.target.result; // contains "data:image/png;base64,...."
+                document.getElementById('texture-none').checked = true; // reset radio selection
+                // changePaperTexture('none')
+                const billContainer = document.getElementById('billContainer');
+                billContainer.style.backgroundImage = `url('${base64String}')`;
+                billContainer.style.backgroundSize = "cover";  // adjust how it fits
+                billContainer.style.backgroundPosition = "center";
+            };
+            reader.readAsDataURL(file);
         });
 
         // Optionally, remember theme in localStorage
@@ -788,10 +835,8 @@
         // function changePaperTexture1() {
         //     const textureSelect = document.getElementById('paperTexture');
         //     const billContainer = document.getElementById('billContainer');
- 
         //     // Remove all texture classes
         //     billContainer.classList.remove('textured', 't1', 't2', 't3', 't4', 't5', 't6', 't7','t8','t9','t10', 'vintage');
-
         //     // Add selected texture
         //     if (textureSelect.value !== 'none') {
         //         billContainer.classList.add('textured', textureSelect.value);
@@ -799,8 +844,10 @@
         // }
 
         function changePaperTexture(value) {
-            // const textureSelect = document.getElementById('paperTexture');
+            document.getElementById("fileInput").value = "";
             const billContainer = document.getElementById('billContainer');
+            billContainer.style.backgroundImage = ""
+            billContainer.style.background = ""
             
             // Remove all texture classes
             billContainer.classList.remove('textured', 't1', 't2', 't3', 't4', 't5', 't6', 't7','t8','t9','t10', 'vintage');
@@ -827,7 +874,6 @@
             const vehicleNumber = document.getElementById('vehicleNumber').value || 'N/A';
             // const customerName = document.getElementById('customerName').value || 'Customer';
             const fixType = document.querySelector('input[name="fixType"]:checked').value;
-            console.log("Fix type:", fixType);
 
             if (fixType === 'quantity') {
                 totalAmount = quantity * rate;
