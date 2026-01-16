@@ -74,12 +74,6 @@
             margin-bottom: 20px;
         }
 
-        /* .radio-group {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-        } */
-
         label {
             display: block;
             margin-bottom: 5px;
@@ -513,6 +507,41 @@
             border: 3px solid #444;
         }
 
+        .dark-theme .additional-features {
+            border-color: #444;
+        }
+
+        .dark-theme .additional-features summary {
+            background: #333;
+            color: #e5e7eb;
+        }
+
+        .dark-theme .additional-features summary:hover {
+            background: #444;
+        }
+
+        .dark-theme .feature-options {
+            background: #23232a;
+        }
+
+        .dark-theme .feature-options label {
+            color: #e5e7eb;
+        }
+
+        .dark-theme .feature-options input[type="checkbox"] {
+            background: #23232a;
+            border-color: #555;
+        }
+
+        .dark-theme .feature-options input[type="checkbox"]:checked {
+            background: #007bff;
+            border-color: #007bff;
+        }
+
+        .dark-theme .feature-options input[type="checkbox"]:hover {
+            border-color: #007bff;
+        }
+
 		/* --- Added: ensure right-aligned values in detail rows --- */
 		.detail-row, .detail-line {
 		  display: flex;
@@ -547,6 +576,79 @@
 		  }
 		}
 		/* End of added CSS */
+
+        .additional-features {
+            margin-bottom: 20px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .additional-features summary {
+            background: #dbdbdb;
+            padding: 12px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #141414;
+            transition: background 0.3s ease;
+        }
+
+        .additional-features summary:hover {
+            background: #e3e4e4;
+            color: #2c2a2a;
+        }
+
+        .feature-options {
+            padding: 15px;
+            background: rgb(235, 235, 235);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .feature-options label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-right: 8px;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .feature-options input[type="checkbox"] {
+            margin: 0;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+            background: rgb(248, 248, 248);
+            transition: all 0.2s ease;
+        }
+
+        .feature-options input[type="checkbox"]:checked {
+            background: #007bff;
+            border-color: #717e85;
+        }
+
+        .feature-options input[type="checkbox"]:checked::before {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .feature-options input[type="checkbox"]:hover {
+            border-color: #007bff;
+        }
 
 </style>
 </head>
@@ -706,6 +808,17 @@
                     </div>
                 </div>
                 
+                <details class="additional-features">
+                    <summary>Additional Features</summary>
+                    <div class="feature-options">
+                        <label><input type="checkbox" id="showAtot" checked> Atot</label>
+                        <label><input type="checkbox" id="showVtot" checked> Vtot</label>
+                        <label><input type="checkbox" id="showCST" checked> CST</label>
+                        <label><input type="checkbox" id="showLST" checked> LST</label>
+                        <label><input type="checkbox" id="showVAT" checked> VAT</label>
+                    </div>
+                </details>
+
                 <div class="btn-group">
                     <button type="button" onclick="generateBill()" class="btn-primary">Generate Bill</button>
                     <button type="button" onclick="downloadJPG()" class="btn-secondary">Download JPG</button>
@@ -851,17 +964,6 @@
         // Auto-update preview when form changes
         document.getElementById('billForm').addEventListener('input', generateBill);
         document.getElementById('billForm').addEventListener('change', generateBill);
-        
-        // function changePaperTexture1() {
-        //     const textureSelect = document.getElementById('paperTexture');
-        //     const billContainer = document.getElementById('billContainer');
-        //     // Remove all texture classes
-        //     billContainer.classList.remove('textured', 't1', 't2', 't3', 't4', 't5', 't6', 't7','t8','t9','t10', 'vintage');
-        //     // Add selected texture
-        //     if (textureSelect.value !== 'none') {
-        //         billContainer.classList.add('textured', textureSelect.value);
-        //     }
-        // }
 
         function changePaperTexture(value) {
             document.getElementById("fileInput").value = "";
@@ -926,8 +1028,46 @@
             document.getElementById('previewRate').textContent = rate.toFixed(2);
             document.getElementById('previewTotal').textContent = totalAmount.toFixed(2);
             // document.getElementById('previewTimestamp').textContent = `Generated on: ${timestamp}`;
+
+            // Apply visibility settings
+            applyVisibilitySettings();
         }
         
+        function applyVisibilitySettings() {
+            const showAtot = document.getElementById('showAtot').checked;
+            const showVtot = document.getElementById('showVtot').checked;
+            const showCST = document.getElementById('showCST').checked;
+            const showLST = document.getElementById('showLST').checked;
+            const showVAT = document.getElementById('showVAT').checked;
+
+            // Find the detail lines in the bill
+            const billDetails = document.querySelectorAll('.bill-details .detail-line');
+
+            billDetails.forEach(line => {
+                const text = line.textContent.trim();
+                if (text.startsWith('Atot') && !showAtot) {
+                    line.style.display = 'none';
+                } else if (text.startsWith('Vtot') && !showVtot) {
+                    line.style.display = 'none';
+                } else if (text.startsWith('CST') && !showCST) {
+                    line.style.display = 'none';
+                } else if (text.startsWith('LST') && !showLST) {
+                    line.style.display = 'none';
+                } else if (text.startsWith('VAT') && !showVAT) {
+                    line.style.display = 'none';
+                } else {
+                    line.style.display = '';
+                }
+            });
+        }
+
+        // Add event listeners for checkboxes
+        document.getElementById('showAtot').addEventListener('change', applyVisibilitySettings);
+        document.getElementById('showVtot').addEventListener('change', applyVisibilitySettings);
+        document.getElementById('showCST').addEventListener('change', applyVisibilitySettings);
+        document.getElementById('showLST').addEventListener('change', applyVisibilitySettings);
+        document.getElementById('showVAT').addEventListener('change', applyVisibilitySettings);
+
         function showLoading() {
             document.getElementById('loading').style.display = 'block';
         }
