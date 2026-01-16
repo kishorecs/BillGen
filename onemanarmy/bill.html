@@ -224,15 +224,15 @@
             border-right: 1.5px solid #d1d5db;
         }
         .bill-container {
-            padding: 20px;
+            padding: 25px;
             background: #f8f8f8;
             font-family: 'thermal';
             position: relative;
             transition: all 0.3s ease;
-            width: 300px;
+            width: 280px;
             margin: 0 auto;
-            font-size: 12px;
-            line-height: 1.3;
+            font-size: 14px;
+            line-height: 1.2;
             color: #333;
             border: 1px solid #ddd;
         }
@@ -512,7 +512,43 @@
         .dark-theme .texture-group {
             border: 3px solid #444;
         }
-    </style>
+
+		/* --- Added: ensure right-aligned values in detail rows --- */
+		.detail-row, .detail-line {
+		  display: flex;
+		  justify-content: space-between;
+		  align-items: center;
+		  gap: 8px;
+		}
+		.detail-row .detail-label,
+		.detail-line .detail-label {
+		  flex: 1 1 auto;
+		  text-align: left;
+		  white-space: nowrap;
+		  overflow: hidden;
+		  text-overflow: ellipsis;
+		}
+		.detail-row .detail-value,
+		.detail-line .detail-value,
+		.detail-row .value,
+		.detail-line .value {
+		  flex: 0 0 140px; /* fixed column width for values — adjust as needed */
+		  text-align: right;
+		  display: inline-block;
+		  white-space: nowrap;
+		}
+		@media (max-width: 400px) {
+		  .detail-row .detail-value,
+		  .detail-line .detail-value,
+		  .detail-row .value,
+		  .detail-line .value {
+		    flex: 0 0 110px;
+		    font-size: 12px;
+		  }
+		}
+		/* End of added CSS */
+
+</style>
 </head>
 <body>
     <div class="theme-toggle-container">
@@ -525,22 +561,6 @@
             <h2>Bill Details</h2>
             <form id="billForm">
                 <div class="form-group">
-                    <!-- <label for="paperTexture">Paper Texture</label>
-                    <select id="paperTexture" onchange="changePaperTexture1()">
-                        <option value="none">No Texture</option>
-                        <option value="t1">Thermal Paper 1</option>
-                        <option value="t2">Thermal Paper 2</option>
-                        <option value="t3">Thermal Paper 3</option>
-                        <option value="t4">Thermal Paper 4</option>
-                        <option value="t5">Thermal Paper 5</option>
-                        <option value="t6">Thermal Paper 6</option>
-                        <option value="t7">Thermal Paper 7</option>
-                        <option value="t8">Thermal Paper 8</option>
-                        <option value="t9">Thermal Paper 9</option>
-                        <option value="t10">Thermal Paper 10</option>
-                        <option value="vintage">Vintage Paper</option>
-                    </select> -->
-
                     <div class="form-row">
                         <label for="paperTextureFieldset">Paper Texture</label>
                         <input class="custom" type="button" value="⇪ Custom" onclick="document.getElementById('fileInput').click();"/>
@@ -964,7 +984,7 @@
                 const billContainer = document.getElementById('billContainer');
                 const canvas = await html2canvas(billContainer, {
                     backgroundColor: '#f8f8f8',
-                    scale: 2,
+                    scale: 1.1,
                     logging: false,
                     useCORS: true,
                     width: billContainer.offsetWidth,
@@ -975,15 +995,19 @@
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 
                 const imgData = canvas.toDataURL('image/png');
-                
+
                 // Calculate dimensions to fit on single page
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = pdf.internal.pageSize.getHeight();
                 
+                // Set page background to gray
+                pdf.setFillColor(212, 212, 212);
+                pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+
                 // Calculate image dimensions maintaining aspect ratio
                 const canvasAspectRatio = canvas.width / canvas.height;
                 
-                let imgWidth = Math.min(pdfWidth - 20, 80); // Max width 80mm for receipt style
+                let imgWidth = Math.min(pdfWidth - 20, 80); // Reduced max width for narrower PDF
                 let imgHeight = imgWidth / canvasAspectRatio;
                 
                 // If height is too large, scale down based on height
